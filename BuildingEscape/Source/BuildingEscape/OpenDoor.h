@@ -19,6 +19,8 @@ class BUILDINGESCAPE_API UOpenDoor : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UOpenDoor();
+	void OpenDoor();
+	void CloseDoor();
 
 protected:
 	// Called when the game starts
@@ -32,8 +34,17 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	float openAngle = 90.0f;
 
+	//a pointer to that specific pressure plate
 	UPROPERTY(EditAnywhere)
-	ATriggerVolume* pressurePlate;
-	
+	ATriggerVolume *pressurePlate;
+
+	UPROPERTY(EditAnywhere)
+	float closeDoorDelay = 2.0f;
+
+	float lastDoorOpened;
+	//Object that overlaps the pressure plate
+	AActor *overlapActor;
+	//Self Door Object
+	AActor* owner = GetOwner();
 	
 };
