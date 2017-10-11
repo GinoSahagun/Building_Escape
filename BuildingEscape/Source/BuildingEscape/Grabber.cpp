@@ -24,15 +24,10 @@ void UGrabber::BeginPlay()
 
 	PlayerController = GetWorld()->GetFirstPlayerController();
 
-	/// Find the Phyiscs Handler
-	physicsHandler = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if (physicsHandler)
-	{
-		//nothing needed
-	}
-	else {
-		UE_LOG(LogTemp, Error, TEXT("No Physics Component Found, %s"), *GetOwner()->GetName());
-	}
+	findPhysicsHandleComponent();
+
+	SetUpInputComponent();
+
 	
 }
 
@@ -42,38 +37,82 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	//Get Player View Point
-	PlayerController->GetPlayerViewPoint(viewOut,rotateOut);
+	
+}
+
+void UGrabber::Grab()
+{
+	UE_LOG(LogTemp, Display, TEXT("Trying To Reach For that Item"));
+
 	//Ray-Cast to Reach distance
 	//UE_LOG(LogTemp, Warning, TEXT("Player View %s , Rotate View %s "),*viewOut.ToString(), *rotateOut.ToString())
+	
 
-	FVector lineTraceEnd = viewOut + rotateOut.Vector() * reach;
+	FHitResult hit = GetFirstPhyiscsBody();
+
+	AActor *ActorHitByTrace = hit.GetActor();
+	if (ActorHitByTrace)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Hitting"));
+	}
+
+	//TODO Attach Physics Handler
+	// ...
+}
+
+void UGrabber::Release()
+{
+	//TODO Release PHyisc Handler
+	UE_LOG(LogTemp, Display, TEXT("Released The Item"));
+}
+
+void UGrabber::findPhysicsHandleComponent()
+{
+	/// Find the Phyiscs Handler
+	physicsHandler = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	if (physicsHandler)
+	{
+		//nothing needed
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("No Physics Component Found, %s"), *GetOwner()->GetName());
+	}
+}
+
+void UGrabber::SetUpInputComponent()
+{
+	input = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (input)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Input Component Found"));
+		///Bind Input Action
+		input->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
+		input->BindAction("Grab", IE_Released, this, &UGrabber::Release);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("No Input Component Found, %s"), *GetOwner()->GetName());
+	}
+}
+
+const FHitResult UGrabber::GetFirstPhyiscsBody()
+{
+	FVector viewOut;
+	FRotator rotateOut;
 	FHitResult hit;
-
-	DrawDebugLine(
-		GetWorld(),
-		viewOut,
-		lineTraceEnd,
-		FColor(255, 0, 0),
-		false,
-		0.f,
-		0.f,
-		10.0f
-	);
+	//Get Player View Point
+	PlayerController->GetPlayerViewPoint(viewOut, rotateOut);
+	FVector lineTraceEnd = viewOut + rotateOut.Vector() * reach;
 	FCollisionQueryParams traceParams(TEXT(""), false, GetOwner());
 	GetWorld()->LineTraceSingleByObjectType(
-		hit, 
-		viewOut, 
-		lineTraceEnd, 
+		hit,
+		viewOut,
+		lineTraceEnd,
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		traceParams
 	);
-	
-	AActor *ActorHitByTrace = hit.GetActor();
-	if (ActorHitByTrace)
-	
-
-	//To See what we Hit
-	// ...
+	return hit;
 }
+
+
 

@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-
+#include "Components/InputComponent.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -28,11 +28,27 @@ public:
 private:
 
 	APlayerController* PlayerController = nullptr;
-	FVector viewOut;
-	FRotator rotateOut;
 
 	UPROPERTY(EditAnywhere)
 	float reach = 100.f;
 		
 	UPhysicsHandleComponent *physicsHandler = nullptr;
+
+	UInputComponent *input = nullptr;
+
+	//Ray-Cast (Line-trace) and Grab whats in Reach
+	void Grab();
+
+	//Release the object After button is no-longer being held
+	void Release();
+
+	//Find Phyiscs Handle Component
+	void findPhysicsHandleComponent();
+
+	//SetUp (Assumed) Input Component 
+	void SetUpInputComponent();
+
+	//First Hit of a Physics Body
+	const FHitResult GetFirstPhyiscsBody();
+
 };
