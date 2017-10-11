@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Grabber.generated.h"
@@ -25,12 +26,13 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-	APlayerController* PlayerController;
+
+	APlayerController* PlayerController = nullptr;
 	FVector viewOut;
 	FRotator rotateOut;
 
 	UPROPERTY(EditAnywhere)
 	float reach = 100.f;
 		
-	
+	UPhysicsHandleComponent *physicsHandler = nullptr;
 };

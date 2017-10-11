@@ -22,10 +22,17 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	UE_LOG(LogTemp, Warning, TEXT("Grabber Reporting for Duty"));
-
 	PlayerController = GetWorld()->GetFirstPlayerController();
-	// ...
+
+	/// Find the Phyiscs Handler
+	physicsHandler = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	if (physicsHandler)
+	{
+		//nothing needed
+	}
+	else {
+		UE_LOG(LogTemp, Error, TEXT("No Physics Component Found, %s"), *GetOwner()->GetName());
+	}
 	
 }
 
@@ -64,7 +71,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	
 	AActor *ActorHitByTrace = hit.GetActor();
 	if (ActorHitByTrace)
-	UE_LOG(LogTemp, Warning, TEXT("Actor Hit Was: %s"), *ActorHitByTrace->GetName());
+	
 
 	//To See what we Hit
 	// ...
