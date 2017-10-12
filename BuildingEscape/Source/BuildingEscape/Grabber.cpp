@@ -4,6 +4,7 @@
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
+#include "Components/PrimitiveComponent.h"
 #include "Runtime/Engine/Public/DrawDebugHelpers.h"
 
 // Sets default values for this component's properties
@@ -37,6 +38,14 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	///If Phyiscs Handler does have an item
+	///Then we need to move item alongside
+	if (physicsHandler->GrabbedComponent)
+	{
+		physicsHandler->SetTargetLocation(GetLineTraceEnd());
+	}
+
+
 	
 }
 
@@ -49,11 +58,17 @@ void UGrabber::Grab()
 	
 
 	FHitResult hit = GetFirstPhyiscsBody();
-
+	auto component = hit.GetComponent();
 	AActor *ActorHitByTrace = hit.GetActor();
 	if (ActorHitByTrace)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Hitting"));
+		physicsHandler->GrabComponent(
+			component,
+			NAME_None,
+			component->GetOwner()->GetActorLocation(),
+			true ///Allow Rotation
+		);
 	}
 
 	//TODO Attach Physics Handler
@@ -63,6 +78,7 @@ void UGrabber::Grab()
 void UGrabber::Release()
 {
 	//TODO Release PHyisc Handler
+	physicsHandler->ReleaseComponent();
 	UE_LOG(LogTemp, Display, TEXT("Released The Item"));
 }
 
@@ -70,11 +86,8 @@ void UGrabber::findPhysicsHandleComponent()
 {
 	/// Find the Phyiscs Handler
 	physicsHandler = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if (physicsHandler)
+	if (physicsHandler == nullptr)
 	{
-		//nothing needed
-	}
-	else {
 		UE_LOG(LogTemp, Error, TEXT("No Physics Component Found, %s"), *GetOwner()->GetName());
 	}
 }
@@ -84,8 +97,6 @@ void UGrabber::SetUpInputComponent()
 	input = GetOwner()->FindComponentByClass<UInputComponent>();
 	if (input)
 	{
-		UE_LOG(LogTemp, Display, TEXT("Input Component Found"));
-		///Bind Input Action
 		input->BindAction("Grab", IE_Pressed, this, &UGrabber::Grab);
 		input->BindAction("Grab", IE_Released, this, &UGrabber::Release);
 	}
@@ -97,21 +108,35 @@ void UGrabber::SetUpInputComponent()
 
 const FHitResult UGrabber::GetFirstPhyiscsBody()
 {
-	FVector viewOut;
-	FRotator rotateOut;
 	FHitResult hit;
-	//Get Player View Point
-	PlayerController->GetPlayerViewPoint(viewOut, rotateOut);
-	FVector lineTraceEnd = viewOut + rotateOut.Vector() * reach;
 	FCollisionQueryParams traceParams(TEXT(""), false, GetOwner());
 	GetWorld()->LineTraceSingleByObjectType(
 		hit,
-		viewOut,
-		lineTraceEnd,
+		GetLineTraceStart(),
+		GetLineTraceEnd(),
 		FCollisionObjectQueryParams(ECollisionChannel::ECC_PhysicsBody),
 		traceParams
 	);
 	return hit;
+}
+
+const FVector UGrabber::GetLineTraceEnd()
+{
+	FVector viewOut;
+	FRotator rotateOut;
+	FHitResult hit;
+	PlayerController->GetPlayerViewPoint(viewOut, rotateOut);
+	return viewOut + rotateOut.Vector() * reach;
+	
+}
+
+const FVector UGrabber::GetLineTraceStart()
+{
+	FVector viewOut;
+	FRotator rotateOut;
+	FHitResult hit;
+	PlayerController->GetPlayerViewPoint(viewOut, rotateOut);
+	return viewOut;
 }
 
 
