@@ -41,10 +41,14 @@ private:
 	UPROPERTY(EditAnywhere)
 	float closeDoorDelay = 2.0f;
 
+	UPROPERTY(EditAnywhere)
+	float massThreshold = 50.f;
+
 	float lastDoorOpened;
-	//Object that overlaps the pressure plate
-	AActor *overlapActor;
 	//Self Door Object
 	AActor* owner = GetOwner();
+
+	//read total mass from pressure plate (trigger volume)
+	float GetTotalMassOnPlate();
 	
 };

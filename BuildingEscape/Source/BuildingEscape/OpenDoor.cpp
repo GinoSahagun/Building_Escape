@@ -2,6 +2,7 @@
 
 #include "OpenDoor.h"
 #include "GameFramework/Actor.h"
+#include "Components/PrimitiveComponent.h"
 #include "Gameframework/PlayerController.h"
 #include "Engine/World.h"
 
@@ -34,8 +35,7 @@ void UOpenDoor::BeginPlay()
 	Super::BeginPlay();
 	//Reference Door-Self Object
 	AActor* owner = GetOwner();
-	//Find overlapped Actor
-	overlapActor = GetWorld()->GetFirstPlayerController()->GetPawn();
+
 
 	
 }
@@ -49,7 +49,7 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	// ...
 	
 	//Poll For Pressure Plate
-	if (pressurePlate->IsOverlappingActor(overlapActor))
+	if (GetTotalMassOnPlate() > massThreshold)
 	{
 		//If the the actor that opens the door is in the volume then we open the door
 		OpenDoor();
@@ -62,6 +62,24 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	}
 
 
+
+}
+
+float UOpenDoor::GetTotalMassOnPlate()
+{
+	TArray<AActor*> ActorsOverlapped;
+	pressurePlate->GetOverlappingActors(ActorsOverlapped);
+	UPrimitiveComponent* component;
+	float totalMass = 0;
+	int len = ActorsOverlapped.Num();
+	for (const auto &kv : ActorsOverlapped)
+	{
+		component = kv->FindComponentByClass<UPrimitiveComponent>();
+		if (component)
+			totalMass += component->GetMass();
+	}
+
+	return totalMass;
 
 }
 
