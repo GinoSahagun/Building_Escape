@@ -36,7 +36,7 @@ private:
 
 	//a pointer to that specific pressure plate
 	UPROPERTY(EditAnywhere)
-	ATriggerVolume *pressurePlate;
+	ATriggerVolume *pressurePlate = nullptr;
 
 	UPROPERTY(EditAnywhere)
 	float closeDoorDelay = 2.0f;
@@ -46,7 +46,7 @@ private:
 
 	float lastDoorOpened;
 	//Self Door Object
-	AActor* owner = GetOwner();
+	AActor* owner = nullptr;
 
 	//read total mass from pressure plate (trigger volume)
 	float GetTotalMassOnPlate();

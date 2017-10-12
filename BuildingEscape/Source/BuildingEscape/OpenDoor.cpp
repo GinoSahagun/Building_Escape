@@ -20,12 +20,14 @@ UOpenDoor::UOpenDoor()
 void UOpenDoor::OpenDoor()
 {
 	//Set Actor Rotation
+	if (!owner) { return; }
 	owner->SetActorRotation(FRotator(0.0f, openAngle, 0.0f));
 }
 
 void UOpenDoor::CloseDoor()
 {
 	//Set Actor Rotation
+	if (!owner) { return; }
 	owner->SetActorRotation(FRotator(0.0f, 0.0f, 0.0f));
 }
 
@@ -33,11 +35,11 @@ void UOpenDoor::CloseDoor()
 void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
-	//Reference Door-Self Object
-	AActor* owner = GetOwner();
-
-
-	
+	owner = GetOwner();
+	if (!pressurePlate)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Missing Pressure Plate : Actor Name %s"), *owner->GetName());
+	}
 }
 
 
@@ -67,16 +69,19 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 float UOpenDoor::GetTotalMassOnPlate()
 {
+	float totalMass = 0.0f;
 	TArray<AActor*> ActorsOverlapped;
+	if (!pressurePlate) { return totalMass; }
 	pressurePlate->GetOverlappingActors(ActorsOverlapped);
 	UPrimitiveComponent* component;
-	float totalMass = 0;
+	
 	int len = ActorsOverlapped.Num();
 	for (const auto &kv : ActorsOverlapped)
 	{
 		component = kv->FindComponentByClass<UPrimitiveComponent>();
 		if (component)
 			totalMass += component->GetMass();
+
 	}
 
 	return totalMass;
