@@ -20,8 +20,9 @@ UOpenDoor::UOpenDoor()
 void UOpenDoor::OpenDoor()
 {
 	//Set Actor Rotation
-	if (!owner) { return; }
-	owner->SetActorRotation(FRotator(0.0f, openAngle, 0.0f));
+	//if (!owner) { return; }
+	//owner->SetActorRotation(FRotator(0.0f, openAngle, 0.0f));
+	OnOpenRequest.Broadcast();
 }
 
 void UOpenDoor::CloseDoor()
