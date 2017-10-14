@@ -16,22 +16,6 @@ UOpenDoor::UOpenDoor()
 	// ...
 }
 
-
-void UOpenDoor::OpenDoor()
-{
-	//Set Actor Rotation
-	//if (!owner) { return; }
-	//owner->SetActorRotation(FRotator(0.0f, openAngle, 0.0f));
-	OnOpenRequest.Broadcast();
-}
-
-void UOpenDoor::CloseDoor()
-{
-	//Set Actor Rotation
-	if (!owner) { return; }
-	owner->SetActorRotation(FRotator(0.0f, 0.0f, 0.0f));
-}
-
 // Called when the game starts
 void UOpenDoor::BeginPlay()
 {
@@ -54,14 +38,11 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 	//Poll For Pressure Plate
 	if (GetTotalMassOnPlate() > massThreshold)
 	{
-		//If the the actor that opens the door is in the volume then we open the door
-		OpenDoor();
-		lastDoorOpened = GetWorld()->GetTimeSeconds();
+		OnOpen.Broadcast();
 	}
-	
-	if ((GetWorld()->GetTimeSeconds() - lastDoorOpened) > closeDoorDelay)
+	else
 	{
-		CloseDoor();
+		OnClose.Broadcast();
 	}
 
 
